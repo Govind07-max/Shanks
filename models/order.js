@@ -1,29 +1,40 @@
 import mongoose from "mongoose";
 
 const orderSchema = new mongoose.Schema({
-  orderId: { type: String, required: true, unique: true },
-  customerName: { type: String, required: true },
-  customerEmail: { type: String, required: true },
-  customerPhone: { type: String, required: true },
-  productName: { type: String, required: true },
-  productCategory: { type: String, required: true }, // e.g., Electronics, Clothing
-  purchaseDate: { type: Date, required: true, default: Date.now },
-  deliveryDate: { type: Date, required: true },
-  price: { type: Number, required: true },
-  paymentMethod: {
-    type: String,
-    enum: ["Card", "UPI", "Cash"],
-    required: true,
+  _id: { type: mongoose.Schema.Types.UUID, default: () => new mongoose.Types.UUID() }, // UUID for unique order ID
+  order_id: { type: String, required: true, unique: true },
+  customer_id: { type: Number, required: true },
+  items: [
+    {
+      item_id: { type: String, required: true },
+      product_name: { type: String, required: true },
+      category: { type: String, required: true },
+      quantity: { type: Number, required: true },
+      price: { type: Number, required: true }, // Stored as float
+    }
+  ],
+  total_amount: { type: Number, required: true },
+  payment_type: { type: String, enum: ["Card", "UPI", "Cash"], required: true },
+  status: { type: String, enum: ["Delivered", "Cancelled", "Returned", "Processing"], required: true },
+  order_date: { type: String, required: false },
+  tracking_id: { type: String, required: false }, // Optional tracking ID
+  carrier: { type: String, required: false }, // Carrier service name
+  customer_address: {
+    street: { type: String, required: true },
+    city: { type: String, required: true },
+    state: { type: String, required: true },
+    zip_code: { type: String, required: true },
+    country: { type: String, required: true },
   },
-  returnEligible: { type: Boolean, default: false },
-  returnWindowDays: { type: Number, required: true },
-  orderStatus: {
-    type: String,
-    enum: ["Delivered", "Cancelled", "Returned", "Processing"],
-    required: true,
-  },
+  shipper_address: {
+    street: { type: String, required: true },
+    city: { type: String, required: true },
+    state: { type: String, required: true },
+    zip_code: { type: String, required: true },
+    country: { type: String, required: true },
+  }
 });
 
-// Export model using ES6 syntax
 const Order = mongoose.model("Order", orderSchema);
+
 export default Order;
