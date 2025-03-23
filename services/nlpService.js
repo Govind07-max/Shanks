@@ -32,13 +32,15 @@ Specifically, you need to:
     * **If the order ID matches the pattern:** Extract it and acknowledge it in your natural language response. **Include the structured output (Intent and Order ID) at the end of your response.**
     * **If the order ID does NOT match the pattern:** Respond with a message like: "That doesn't seem to be a valid order ID. Please provide your order ID in the correct format, which is 3 numbers followed by a hyphen and then two characters (e.g., 123-ab)." **Do not include the structured output.**
 
-4.  If the user asks for any other request or intent that doesn't require an order ID immediately, provide a natural language response in a friendly and helpful tone. **Include the structured output with the identified intent and "order_id": null.**
-
-5.  The format for the structured output is:
+4.  If the user asks for any other request or intent that doesn't require an order ID immediately, provide a natural language response in a friendly and helpful tone. if there is no order id in customer request then do not inlude structured output in response. if there is order id in customer input then only  **Include the structured output with the identified intent and "order_id": .**
+5. if there  is no order id then do not include the structured output in the response.
+6.  The format for the structured output is:
     \`\`\`
     {"intent": "<identified_intent>", "order_id": "<extracted_order_id or null>"}
     \`\`\`
-6. strictly enclose the structured output inside the triple backticks (\`\`\`) .
+7. strictly enclose the structured output inside the triple backticks (\`\`\`) .
+
+
 
 You should respond in a friendly and helpful tone.`,
 });
@@ -80,25 +82,25 @@ async function run(text, userId) {
 
         
         
-        const structuredDataMatch = responseText.match(/```\s*([\s\S]*?)\s*```/);
+        const structuredDataMatch = responseText.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
 
-if (structuredDataMatch) {
-    try {
-        const extractedJson = structuredDataMatch[1].trim(); 
-        const structuredData = JSON.parse(extractedJson);
-
-        intent = structuredData.intent || null;
-        orderId = structuredData.order_id && structuredData.order_id !== "null" ? structuredData.order_id : null;
-
-       
-        console.log(" Extracted Intent:", intent);
-        console.log(" Extracted Order ID:", orderId);
-    } catch (jsonError) {
-        console.error(" JSON Parsing Error:", jsonError);
-    }
-} else {
-    console.warn(" No structured JSON found in response.");
-}
+        if (structuredDataMatch) {
+            try {
+                const extractedJson = structuredDataMatch[1].trim(); // Extract and clean JSON
+                const structuredData = JSON.parse(extractedJson); // Parse JSON safely
+                
+                intent = structuredData.intent || null;
+                orderId = structuredData.order_id && structuredData.order_id !== "null" ? structuredData.order_id : null;
+        
+                console.log("Extracted Intent:", intent);
+                console.log("Extracted Order ID:", orderId);
+            } catch (jsonError) {
+                console.error("JSON Parsing Error:", jsonError);
+            }
+        } else {
+            console.warn("No structured JSON found in response.");
+        }
+        
 
 
         return { response: responseText, intent, orderId };
