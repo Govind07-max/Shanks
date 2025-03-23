@@ -1,6 +1,7 @@
 import run from "../services/nlpService.js";
 import { getRefundStatus } from "../services/refundService.js";
 import mongoose from "mongoose";
+import { getOrderDetails } from "../services/returnService.js";
 const nlpController = async (req, res) => {
   const { text, userId } = req.body;
 
@@ -11,7 +12,7 @@ const nlpController = async (req, res) => {
   }
 
   try {
-    const result = await run(text, userId); // Pass the userId
+    const result = await run(text, userId); 
     const { response, intent, orderId } = result;
     console.log(" Processed NLP Response: ", response);
     console.log(" Intent:", intent);
@@ -19,24 +20,25 @@ const nlpController = async (req, res) => {
 
     if (orderId && intent) {
       if (intent === "Return Request") {
-        // Handle return request logic here
-        console.log("Return Request for Order ID:", orderId);
         
-        res.status(200).json({ response, intent, orderId });
+        console.log("Return Request for Order ID:", orderId);
+        const orderDetails = await getOrderDetails(orderId);
+        res.status(200).json({ response, intent, orderId, orderDetails });
+        
 
 
 
       } else if (intent === "Refund Status Inquiry") {
-        // Handle refund status inquiry logic here
+        
 
         console.log("Refund Status Inquiry for Order ID:", orderId);
-        const status = getRefundStatus(orderId);
+        const status = await getRefundStatus(orderId);
 
         res.status(200).json({ "refund status": status });
-        // res.status(200).json({ response, intent, orderId });
+        
       }
     } else if (orderId === null) {
-      // If order ID is null (meaning no valid order ID), send only the raw response
+      
       res.status(200).json({ response });
     } else {
       res.status(200).json({ response });

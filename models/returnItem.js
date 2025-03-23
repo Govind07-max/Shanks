@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const returnItemschema = new mongoose.Schema({
     _id: { type: mongoose.Schema.Types.UUID, default: () => new mongoose.Types.UUID() }, // Unique order ID
     customer_id: { type: Number, required: true },
-    order_id: { type: mongoose.Schema.Types.UUID, default: () => new mongoose.Types.UUID(), unique: true },
+    order_id: { type: String, unique: true },
     
     item_id: { type: String, required: true,unique: true },
     product_name: { type: String, required: true },

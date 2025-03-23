@@ -51,7 +51,7 @@ const generationConfig = {
     responseMimeType: "text/plain",
 };
 
-// In-memory storage for conversation history (for development)
+
 const conversationHistory = {};
 
 async function run(text, userId) {
@@ -62,43 +62,44 @@ async function run(text, userId) {
 
         const chatSession = model.startChat({
             generationConfig,
-            history: conversationHistory[userId], // Use the stored history
+            history: conversationHistory[userId], 
         });
 
         const result = await chatSession.sendMessage(text);
         const responseText = result.response.text();
 
-        // Debug: Log the full response before extraction
+      
         console.log(" Full LLM Response:\n", responseText);
 
-        // Store chat history
+        
         conversationHistory[userId].push({ role: "user", parts: [{ text }] });
         conversationHistory[userId].push({ role: "model", parts: [{ text: responseText }] });
 
         let intent = null;
         let orderId = null;
 
-        // Extract JSON from the response (Regex based)
         
-        const structuredDataMatch = responseText.match(/```[\s\n]*\{[\s\S]*?"intent":.*?"order_id":.*?\}[\s\n]*```/);
+        
+        const structuredDataMatch = responseText.match(/```\s*([\s\S]*?)\s*```/);
 
-        if (structuredDataMatch) {
-            try {
-                const extractedJson = structuredDataMatch[0].replace(/```/g, "").trim(); // Remove the backticks
-                const structuredData = JSON.parse(extractedJson); // Parse JSON
-                
-                intent = structuredData.intent || null;
-                orderId = structuredData.order_id && structuredData.order_id !== "null" ? structuredData.order_id : null;
-        
-                console.log(" Extracted Intent:", intent);
-                console.log(" Extracted Order ID:", orderId);
-            } catch (jsonError) {
-                console.error(" JSON Parsing Error:", jsonError);
-            }
-        } else {
-            console.warn(" No structured JSON found in response.");
-        }
-        
+if (structuredDataMatch) {
+    try {
+        const extractedJson = structuredDataMatch[1].trim(); 
+        const structuredData = JSON.parse(extractedJson);
+
+        intent = structuredData.intent || null;
+        orderId = structuredData.order_id && structuredData.order_id !== "null" ? structuredData.order_id : null;
+
+       
+        console.log(" Extracted Intent:", intent);
+        console.log(" Extracted Order ID:", orderId);
+    } catch (jsonError) {
+        console.error(" JSON Parsing Error:", jsonError);
+    }
+} else {
+    console.warn(" No structured JSON found in response.");
+}
+
 
         return { response: responseText, intent, orderId };
     } catch (error) {
