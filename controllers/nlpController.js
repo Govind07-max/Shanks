@@ -39,9 +39,9 @@ const nlpController = async (req, res) => {
       }
     } else if (orderId === null) {
       
-      res.status(200).json({ response });
+      res.status(200).send(response);
     } else {
-      res.status(200).json({ response });
+      res.status(200).send(response);
     }
   } catch (error) {
     console.error("Error in nlpController:", error.message);

@@ -84,23 +84,23 @@ async function run(text, userId) {
         
         const structuredDataMatch = responseText.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
 
-        if (structuredDataMatch) {
-            try {
-                const extractedJson = structuredDataMatch[1].trim(); // Extract and clean JSON
-                const structuredData = JSON.parse(extractedJson); // Parse JSON safely
-                
-                intent = structuredData.intent || null;
-                orderId = structuredData.order_id && structuredData.order_id !== "null" ? structuredData.order_id : null;
-        
-                console.log("Extracted Intent:", intent);
-                console.log("Extracted Order ID:", orderId);
-            } catch (jsonError) {
-                console.error("JSON Parsing Error:", jsonError);
-            }
-        } else {
-            console.warn("No structured JSON found in response.");
-        }
-        
+if (structuredDataMatch) {
+    try {
+        const extractedJson = structuredDataMatch[1].trim(); 
+        const structuredData = JSON.parse(extractedJson);
+
+        intent = structuredData.intent || null;
+        orderId = structuredData.order_id && structuredData.order_id !== "null" ? structuredData.order_id : null;
+
+       
+        console.log(" Extracted Intent:", intent);
+        console.log(" Extracted Order ID:", orderId);
+    } catch (jsonError) {
+        console.error(" JSON Parsing Error:", jsonError);
+    }
+} else {
+    console.warn(" No structured JSON found in response.");
+}
 
 
         return { response: responseText, intent, orderId };
