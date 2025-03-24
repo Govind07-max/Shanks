@@ -20,7 +20,7 @@ Specifically, you need to:
 1.  **Identify the intent** of the customer's message. Common intents include:
     * Return Request
     * Refund Status Inquiry
-    * Shipping Information
+    * Shipping label generation
     * cancel return request
     * 
     * General Question
@@ -35,7 +35,7 @@ Specifically, you need to:
     * **If the order ID does NOT match the pattern:** Respond with a message like: "That doesn't seem to be a valid order ID. Please provide your order ID in the correct format, which is 3 numbers followed by a hyphen and then two characters (e.g., 123-ab)." **Do not include the structured output.**
 
 4.  If the user asks for any other request or intent that doesn't require an order ID immediately, provide a natural language response in a friendly and helpful tone. if there is no order id in customer request then do not inlude structured output in response. if there is order id in customer input then only  **Include the structured output with the identified intent and "order_id": .**
-5. if there  is no order id then do not include the structured output in the response.
+5. if there  is no order id then do not include the structured output in the response **exceept when user wants to generate the shipping label, add the structured format when user wants to generate the shipping label**.
 6.  The format for the structured output is:
     \`\`\`
     {"intent": "<identified_intent>", "order_id": "<extracted_order_id or null>"}
@@ -54,7 +54,7 @@ Specifically, you need to:
 
  **Ask clarifying questions like, “Are you looking to return or refund an item?” or “Please specify your order ID if you want to process a return.” 
 
-
+11. if user is eligible for return then ask "Would you like to proceed with generating your return shipping label?". and if user says yes then generate the shipping label.
 
 You should respond in a friendly and helpful tone.`,
 });
@@ -69,6 +69,7 @@ const generationConfig = {
 
 
 const conversationHistory = {};
+export { conversationHistory };
 
 async function run(text, userId) {
     try {
