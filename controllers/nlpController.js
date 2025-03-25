@@ -35,7 +35,7 @@ const nlpController = async (req, res) => {
           }
           conversationHistory[userId].push({ role: "model", parts: [{ text: finalResponse }] });
 
-          res.status(200).json({ response: finalResponse });
+          res.status(200).send(finalResponse);
         } else {
           res.status(404).json({ error: "Order not found" });
         }
@@ -43,7 +43,7 @@ const nlpController = async (req, res) => {
         console.log("Refund Status Inquiry for Order ID:", orderId);
         const status = await getRefundStatus(orderId);
         if (status) {
-          res.status(200).json({ Refund_status: status });
+          res.status(200).send(status);
         } else {
           res.status(404).json({ error: "Refund status not found" });
         }
