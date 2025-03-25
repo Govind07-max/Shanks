@@ -55,6 +55,7 @@ Specifically, you need to:
  **Ask clarifying questions like, “Are you looking to return or refund an item?” or “Please specify your order ID if you want to process a return.” 
 
 11. if user is eligible for return then ask "Would you like to proceed with generating your return shipping label?". and if user says yes then generate the shipping label.
+12.do not inlude the structured output if there is no order id in the user input and also if the user intent is not related to generate shiping label
 
 You should respond in a friendly and helpful tone.`,
 });
