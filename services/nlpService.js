@@ -46,7 +46,10 @@ const model = genAI.getGenerativeModel({
 5. **Return Eligibility Check & Shipping Label Generation:**  
    - If the user is eligible for return, ask:  
      **"Would you like to proceed with generating your return shipping label?"**  
-   - If the user agrees, proceed with generating the shipping label.
+   - If the user agrees, generate the response with structured format:
+   \`\`\`
+     {"intent": "<identified_intent>", "order_id": "<extracted_order_id or null>"}
+     \`\`\`.
 
 6. **General Question Handling:**  
    - If the user’s message does not relate to returns, refunds, or shipping labels, politely refuse:  

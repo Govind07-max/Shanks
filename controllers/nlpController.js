@@ -8,6 +8,7 @@ import { conversationHistory } from "../services/nlpService.js";
 
 const nlpController = async (req, res) => {
   const { text, userId } = req.body;
+  console.log("Received NLP Request:", req.body);
 
   // Validate input
   if (!text || typeof text !== "string") {
@@ -118,7 +119,7 @@ const nlpController = async (req, res) => {
         } else {
           return res.status(404).json({ error: "Refund status not found" });
         }
-      } else if (intent === "Shipping label generation") {
+      } else if (intent === "Shipping Label Generation") {
         console.log("Shipping label generation for Order ID:", orderId);
 
         // Generate shipping label
@@ -131,6 +132,7 @@ const nlpController = async (req, res) => {
     }
 
     // Default response for unhandled cases
+    console.log("default response");
     return res.status(200).send(response);
   } catch (error) {
     console.error("Error in nlpController:", error.message);
