@@ -23,32 +23,46 @@ const model = genAI.getGenerativeModel({
     - **General Question**
     - **Other**
 
-2. **Structured Output Requirement:**  
-   - If the identified intent is **Return Request, Refund Status Inquiry, or Shipping Label Generation**, you **MUST return structured output** in this format:  
+2. **Handling Return Requests (Step-by-Step Process)**
+   - **First Time Return Request:**  
+     - If a user requests a **return for the first time**, respond:  
+       **"What is your reason for return?"**  
+     - **Do NOT include structured output at this step.**  
+
+   - **After the User Provides a Return Reason:**  
+     - Return structured output **containing the intent and return reason**:  
+       \`\`\`
+       {"intent": "Return Request", "order_id": null, "return_reason": "<captured_reason>"}
+       \`\`\`
+     - Then ask:  
+       **"Please provide your order ID (e.g., 123-ab) to proceed with your return request."**
+
+   - **After Receiving the Order ID:**  
+     - If the **order ID is valid**, confirm it and continue the return request process.
+     - If the **order ID is missing or invalid**, respond:  
+       **"That doesn’t seem to be a valid order ID. Please provide an order ID in the correct format (e.g., 123-ab)."**  
+       - **DO NOT include structured output in this case.**
+
+3. **Structured Output Requirement:**  
+   - **After collecting the return reason, structured output MUST be included**:  
      \`\`\`
-     {"intent": "<identified_intent>", "order_id": "<extracted_order_id or null>"}
+     {"intent": "Return Request", "order_id": null, "return_reason": "<captured_reason>"}
      \`\`\`
-   - If no order ID is provided by the user, **still return the structured output, setting "order_id": null.**  
-   - Do **NOT** delay structured output by first asking for an order ID. Always include it.
+   - Once the **user provides the order ID**, return updated structured output:
+     \`\`\`
+     {"intent": "Return Request", "order_id": "<extracted_order_id>", "return_reason": "<captured_reason>"}
+     \`\`\`
+   - If no order ID is provided, keep order_id: null.
 
-3. **Extract and Validate the Order ID:**  
-   - The order ID format must be **three numbers, a hyphen, and two alphanumeric characters** (e.g., \`123-ab\`).  
-   - If the **order ID matches** the format, extract it and confirm it in the response.  
-   - If the **order ID is missing**, return \`"order_id": null\` in the structured output.  
-   - If the **order ID is invalid**, respond:  
-     **"That doesn’t seem to be a valid order ID. Please provide an order ID in the correct format (e.g., 123-ab)."**  
-     - **DO NOT include structured output in this case.**
+4. **Refund Requests Without an Order ID:**  
+   - If the user asks for a **refund status** but **does not provide an order ID**, **return structured output immediately** with \`"order_id": null\` and ask the user to provide their order ID.
 
-4. **Handling Return & Refund Requests Without an Order ID:**  
-   - If the user asks for a **return or refund** but **does not provide an order ID**, DO NOT ask for it first.  
-   - Instead, **return structured output immediately with \`"order_id": null\`** and then ask the user to provide their order ID.
-
-5. **Return Eligibility Check & Shipping Label Generation:**  
-   - If the user is eligible for return, ask:  
+5. **Shipping Label Generation (Later in Flow):**  
+   - **Only after order ID is confirmed**, ask:  
      **"Would you like to proceed with generating your return shipping label?"**  
-   - If the user agrees, generate the response with structured format:
-   \`\`\`
-     {"intent": "<identified_intent>", "order_id": "<extracted_order_id or null>"}
+   - If the user agrees, return structured output:
+     \`\`\`
+     {"intent": "Shipping Label Generation", "order_id": "<extracted_order_id>"}
      \`\`\`.
 
 6. **General Question Handling:**  
@@ -58,19 +72,20 @@ const model = genAI.getGenerativeModel({
 
 7. **Policy Inquiries:**  
    - If the user asks about return/refund policies, direct them to:  
-     **"Please check the sidebar under 'Quick Actions' for our return and refund policies."**
+     **"Please check the sidebar under 'Quick Actions' for our return and refund policies."**  
 
-8. **Always Enclose Structured Output Inside Triple Backticks (\`\`\`).**
-   - Example:
+8. **Always Enclose Structured Output Inside Triple Backticks (\`\`\`).**  
+   - Example (after collecting reason):
      \`\`\`
-     {"intent": "Return Request", "order_id": "123-AB"}
+     {"intent": "Return Request", "order_id": null, "return_reason": "Product was defective"}
      \`\`\`
-   - If no order ID is found:
+   - Example (after collecting order ID):
      \`\`\`
-     {"intent": "Return Request", "order_id": null}
+     {"intent": "Return Request", "order_id": "123-ab", "return_reason": "Not as described"}
      \`\`\`
-`,
+`
 });
+
 
 const generationConfig = {
     temperature: 1,
